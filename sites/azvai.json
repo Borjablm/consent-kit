@@ -33,6 +33,10 @@
   "zIndex": 99999,
   "wp": {
     "policyPage": 2181,
+    "legalPages": [
+      "privacy-policy",
+      "politica-de-privacidad"
+    ],
     "log": true,
     "logRetentionDays": 1095
   }
