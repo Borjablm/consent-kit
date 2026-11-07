@@ -1,5 +1,5 @@
 /*!
- * Consent Kit 1.0.0. Accept/Reject cookie banner with Google Consent Mode v2.
+ * Consent Kit 1.1.0. Accept/Reject cookie banner with Google Consent Mode v2.
  * One file for every site. Load it synchronously in <head>, before any Google tag,
  * after setting window.ConsentKitConfig. The WordPress plugin inlines this file.
  * https://github.com/Borjablm/consent-kit (GPL-2.0-or-later)
@@ -26,6 +26,11 @@
 	}
 	var saved = read();
 	var current = saved && saved.version === VERSION ? saved.choice : null;
+
+	// Global Privacy Control (a browser-wide "do not sell or share" signal, honoured under 11 CCR 7025).
+	// With no choice yet it counts as Reject: the banner stays closed and nothing is stored or logged.
+	// The visitor can still open the settings and accept. It is never read as Accept.
+	var gpc = !current && cfg.respectGpc !== false && w.navigator && w.navigator.globalPrivacyControl === true;
 
 	// Google Consent Mode v2 default. Must run before any Google tag.
 	w.dataLayer = w.dataLayer || [];
@@ -197,7 +202,7 @@
 		});
 
 		if (current === 'granted') { runDeferred(); }
-		if (!current) { show(true); }
+		if (!current && !gpc) { show(true); }
 	}
 
 	w.ConsentKit = {

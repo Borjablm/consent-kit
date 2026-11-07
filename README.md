@@ -9,6 +9,8 @@ A small cookie banner for WordPress and any other site: Accept and Reject with e
 - **Consent log.** Each choice is stored with a random consent ID (also kept in the visitor's cookie), the policy version, the page path and the time. No IP address is stored. Rows older than `wp.logRetentionDays` are deleted daily. Tools > Consent log shows the last 30 days with the acceptance rate, finds a consent ID and exports CSV. The log endpoint validates its input, accepts records only from its own site plus `wp.allowedOrigins`, and allows 30 records an hour per visitor.
 - **Legal pages.** `wp.legalPages` (slugs) get `noindex, follow` and are left out of the Yoast sitemap.
 - **Safe by default.** With no settings stored, the plugin prints nothing. It also stays silent, with an admin notice, while one of the per-site plugins it replaced is active, so a visitor never sees two banners.
+- **Global Privacy Control.** A browser that sends GPC is treated as Reject until the visitor chooses otherwise: no banner, nothing stored. Set `respectGpc: false` to turn this off.
+- **What the banner said.** The WordPress plugin keeps the wording, granted signals and policy link for each policy version (Tools > Consent log), so a logged choice can be matched to what the visitor saw.
 - **Updates.** The header `Update URI: https://github.com/Borjablm/consent-kit` makes WordPress read `update.json` from this repository. Every site auto-updates within about 12 hours of a release, and no wordpress.org plugin can overwrite it.
 
 ## Files
@@ -16,6 +18,10 @@ A small cookie banner for WordPress and any other site: Accept and Reject with e
 |---|---|
 | `consent-kit.js` | The banner. The WordPress plugin inlines it, and other sites load it as a file. |
 | `wordpress/consent-kit.php` | The WordPress plugin: settings, config API, script holding, consent log, legal pages, updates. |
+| `adapters/` | `@borjablm/consent-kit` for JavaScript apps: `inlineScript()` and helpers, `<ConsentKitScript>` for the page head, and `useConsent()` and `<ConsentGate>` for React. TypeScript types included. `core.mjs` is generated from `consent-kit.js` by `build.py`. |
+| `schema/config.schema.json` | The settings, as a JSON Schema. `build.py` checks every `sites/*.json` against it. |
+| `docs/INTEGRATION.md` | How to add the kit to any site, and the contract every integration follows. |
+| `docs/REGULATIONS.md` | The EU, Spanish, UK, Californian and Google rules behind the banner, with official links, and how the kit meets each one. |
 | `sites/*.json` | Settings for each site. `_template.json` is the starting point for a new site. |
 | `configure.py` | Reads, compares and pushes a site's settings through its REST API. |
 | `theme.py` | Reads a site's colours from its live homepage, checks contrast and previews the banner. |
@@ -65,17 +71,14 @@ python theme.py https://example.com/ --preview test/shots/example.png
 This reads the colours the page renders (background, text, links, buttons and their rounding) and picks the most used brand colour. It checks contrast (4.5:1 for text, 3:1 for outlines) and falls back to the body text colour when a colour is too faint. With `--preview`, it draws the banner over the live page in a headless browser for desktop and phone. Nothing on the site changes. `--site <name>` writes the theme into that site's settings file.
 
 ## Sites without WordPress
-```html
-<script>window.ConsentKitConfig = { /* a sites/*.json without "wp", plus "links": {"en": "/privacy/"} */ };</script>
-<script src="/consent-kit.js"></script>
-```
-Put both in `<head>`, before any Google tag. To log choices, set `logEndpoint` to a WordPress site's `/wp-json/consent-kit/v1/log` and list this host in that site's `wp.allowedOrigins`. Page code can use `ConsentKit.get()`, `ConsentKit.on(fn)`, `ConsentKit.open()` or the `consentkit:change` event.
+Next.js and React sites install `github:Borjablm/consent-kit#v1.1.0` and use `<ConsentKitScript>`, `<ConsentGate>` and `useConsent()`. Plain HTML sites load `consent-kit.js` from jsDelivr, pinned to a release. [docs/INTEGRATION.md](docs/INTEGRATION.md) has both, the contract every integration follows, and how to log choices.
 
 ## Tests and releases
 - `python test/lint.py` (Docker) runs gitleaks, PHP 7.4+ compatibility, the WordPress-Extra coding standards and ESLint, with zero findings allowed. Every `phpcs:ignore` must name its rule and give a reason.
-- `python test/test_js.py` runs the banner in Chrome with every settings file.
+- `python test/test_js.py` runs the banner in Chrome with every settings file, including Global Privacy Control.
+- `python test/test_adapters.py` (after `npm install`) server-renders `<ConsentKitScript>` with React 18 and checks `useConsent()` and `<ConsentGate>` in Chrome.
 - `python test/test_wp.py` (Docker) uses a throwaway WordPress to test install, the config API and its validation, script holding, the consent log, purging, the admin page, the old-plugin guard, and a self-update that keeps the settings. Add `--keep` to leave it running at http://localhost:8089.
-- To release, raise the version in the plugin header, in `CONSENT_KIT_VERSION` and in the first line of `consent-kit.js`, commit, and run `python release.py`. It runs all three checks above and stops on any failure. It attaches the zip to a GitHub release and only then commits `update.json`, so no site sees a version it cannot download. To roll back, release the earlier code under a higher version number.
+- To release, raise the version in the plugin header, in `CONSENT_KIT_VERSION`, in `package.json` and in the first line of `consent-kit.js`, run `python build.py` (it regenerates `adapters/core.mjs`), commit, and run `python release.py`. It runs all four checks above and stops on any failure. It attaches the zip to a GitHub release and only then commits `update.json`, so no site sees a version it cannot download. To roll back, release the earlier code under a higher version number.
 
 ## Not covered
 Sites that show Google AdSense or Ad Manager ads in the EEA or UK need a Google-certified CMP that supports the IAB TCF. Consent Kit is not one.

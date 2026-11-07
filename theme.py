@@ -71,11 +71,13 @@ def theme_for(raw):
             k = hexc(c)
             n, _, whys = votes.get(k, (0, c, set()))
             votes[k] = (n + w, c, whys | {why})
+    # A filled button is the strongest brand signal (the main call to action), so it outweighs
+    # a page full of links in the text colour. Button text is usually white or the text colour,
+    # so it does not vote.
     for btn in raw["buttons"]:
-        vote(btn["bg"], 2, "button fill")
+        vote(btn["bg"], 6, "button fill")
         if btn["borderWidth"] >= 1:
-            vote(btn["border"], 2, "button outline")
-        vote(btn["fg"], 1, "button text")
+            vote(btn["border"], 3, "button outline")
     vote(raw["link"], 2, "content link")
     for c in raw["links"]:
         vote(c, 1, "links")

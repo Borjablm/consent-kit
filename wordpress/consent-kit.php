@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Consent Kit
  * Description: Accept/Reject cookie banner with Google Consent Mode v2, scripts held until consent, a consent log for proof, and noindex on legal pages. The same plugin runs on every site; each site's settings are stored in the database and set through the admin-only REST route consent-kit/v1/config (configure.py). Updates itself from the release manifest. Replaces Azvai, Lumination and QueCafe Cookie Consent.
- * Version: 1.0.0
+ * Version: 1.1.0
  * Author: Azvai
  * Requires at least: 6.5
  * Requires PHP: 7.4
@@ -12,7 +12,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-const CONSENT_KIT_VERSION    = '1.0.0';
+const CONSENT_KIT_VERSION    = '1.1.0';
 const CONSENT_KIT_DB_VERSION = '1';
 const CONSENT_KIT_OPTION     = 'consent_kit_config';
 if ( ! defined( 'CONSENT_KIT_UPDATE_URL' ) ) {
@@ -41,7 +41,7 @@ function consent_kit_validate( $c ) {
 	if ( ! is_array( $c ) ) {
 		return new WP_Error( 'consent_kit_invalid', 'Config must be a JSON object.', array( 'status' => 400 ) );
 	}
-	$known = array( 'site', 'cookie', 'version', 'maxAgeDays', 'grant', 'clearCookies', 'defaultLang', 'texts', 'theme', 'zIndex', 'hideWhileOpen', 'wp' );
+	$known = array( 'site', 'cookie', 'version', 'maxAgeDays', 'grant', 'clearCookies', 'defaultLang', 'texts', 'theme', 'zIndex', 'hideWhileOpen', 'respectGpc', 'wp' );
 	foreach ( array_diff( array_keys( $c ), $known ) as $k ) {
 		$err[] = "unknown key \"$k\"";
 	}
@@ -109,6 +109,7 @@ function consent_kit_validate( $c ) {
 		}
 	}
 	$out['zIndex']        = isset( $c['zIndex'] ) ? (int) $c['zIndex'] : 99999;
+	$out['respectGpc']    = isset( $c['respectGpc'] ) ? (bool) $c['respectGpc'] : true;
 	$out['hideWhileOpen'] = array();
 	foreach ( (array) ( $c['hideWhileOpen'] ?? array() ) as $sel ) {
 		if ( ! is_string( $sel ) || ! preg_match( '/^[#.\w\s\[\]="\'*^$|~:>+-]{1,120}$/', $sel ) ) {
@@ -491,6 +492,18 @@ function consent_kit_admin_page() {
 		}
 		echo '</tbody></table>';
 	}
+	$history = get_option( 'consent_kit_banner_history', array() );
+	if ( $history ) {
+		echo '<h2>What the banner said, by policy version</h2><table class="widefat striped" style="max-width:900px"><thead><tr><th>Saved (UTC)</th><th>Version</th><th>Grants</th><th>Wording</th></tr></thead><tbody>';
+		foreach ( array_reverse( $history ) as $h ) {
+			$words = array();
+			foreach ( $h['texts'] as $lang => $t ) {
+				$words[] = '<strong>' . esc_html( $lang ) . '</strong> ' . esc_html( $t['message'] ) . ' [' . esc_html( $t['reject'] ) . '] [' . esc_html( $t['accept'] ) . ']';
+			}
+			echo '<tr><td>' . esc_html( $h['saved_at'] ) . '</td><td>' . (int) $h['version'] . '</td><td>' . esc_html( implode( ', ', $h['grant'] ) ) . '</td><td>' . wp_kses_post( implode( '<br>', $words ) ) . '</td></tr>';
+		}
+		echo '</tbody></table>';
+	}
 	?>
 	<h2>Export</h2>
 	<p><a class="button" href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=consent_kit_export' ), 'consent_kit_export' ) ); ?>">Download CSV</a></p>
@@ -534,6 +547,7 @@ function consent_kit_rest_config_get() {
 			'plugin_version' => CONSENT_KIT_VERSION,
 			'config'         => get_option( CONSENT_KIT_OPTION ) ? get_option( CONSENT_KIT_OPTION ) : null,
 			'paused_by'      => consent_kit_old_plugin(),
+			'banner_history' => get_option( 'consent_kit_banner_history', array() ),
 		)
 	);
 }
@@ -545,6 +559,7 @@ function consent_kit_rest_config_put( WP_REST_Request $request ) {
 	}
 	update_option( CONSENT_KIT_OPTION, $clean, true );
 	consent_kit_config( true );
+	consent_kit_record_banner( $clean );
 	return new WP_REST_Response(
 		array(
 			'saved'          => true,
@@ -552,6 +567,31 @@ function consent_kit_rest_config_put( WP_REST_Request $request ) {
 			'caches_cleared' => consent_kit_purge_page_caches(),
 		)
 	);
+}
+
+/**
+ * Keep what the banner said for each policy version, so a logged consent ID and version can be
+ * matched to the wording the visitor saw (EDPB Guidelines 05/2020, para 108). A new entry is added
+ * only when the wording, the granted signals or the policy link change.
+ */
+function consent_kit_record_banner( $cfg ) {
+	$history = get_option( 'consent_kit_banner_history', array() );
+	$history = is_array( $history ) ? $history : array();
+	$entry   = array(
+		'version' => (int) $cfg['version'],
+		'texts'   => $cfg['texts'],
+		'grant'   => $cfg['grant'],
+		'policy'  => $cfg['wp']['policyPage'],
+	);
+	$last = end( $history );
+	if ( $last ) {
+		unset( $last['saved_at'] );
+	}
+	if ( $last !== $entry ) {
+		$entry['saved_at'] = gmdate( 'Y-m-d H:i:s' );
+		$history[]         = $entry;
+		update_option( 'consent_kit_banner_history', $history, false );
+	}
 }
 
 add_action(

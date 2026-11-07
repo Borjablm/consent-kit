@@ -33,6 +33,7 @@ def main():
         raise SystemExit(f"v{v} is already released. Raise the version first.")
     run(sys.executable, "test/lint.py")
     run(sys.executable, "test/test_js.py")
+    run(sys.executable, "test/test_adapters.py")
     run(sys.executable, "test/test_wp.py")
     zip_path = build()
     run("gh", "release", "create", f"v{v}", str(zip_path), "--repo", REPO, "--title", f"Consent Kit {v}", "--notes", f"Consent Kit {v}. Sites update themselves from update.json.")

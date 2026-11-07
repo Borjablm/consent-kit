@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Borjablm/consent-kit/blob/main/schema/config.schema.json",
+  "title": "Consent Kit settings",
+  "description": "Settings for one site. WordPress sites keep them in the database (configure.py); other sites pass them to ConsentKitScript or window.ConsentKitConfig. The wp block is read only by the WordPress plugin.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["cookie", "version", "texts"],
+  "properties": {
+    "site": { "type": "string", "pattern": "^[a-z0-9.-]{3,100}$", "description": "Host name recorded in the consent log." },
+    "cookie": { "type": "string", "pattern": "^[a-z][a-z0-9_]{2,30}$", "description": "Cookie that stores the choice. Changing it loses existing choices." },
+    "version": { "type": "integer", "minimum": 1, "maximum": 9999, "description": "Policy version. Raise it to ask everyone again." },
+    "maxAgeDays": { "type": "integer", "minimum": 1, "maximum": 395, "default": 180 },
+    "grant": {
+      "type": "array",
+      "items": { "enum": ["ad_storage", "ad_user_data", "ad_personalization", "analytics_storage"] },
+      "uniqueItems": true,
+      "default": ["analytics_storage"],
+      "description": "Consent Mode signals granted on Accept."
+    },
+    "clearCookies": {
+      "type": "array",
+      "items": { "type": "string", "pattern": "^[A-Za-z0-9_.-]{1,40}$" },
+      "default": ["_ga"],
+      "description": "Cookie names or prefixes deleted on Reject."
+    },
+    "defaultLang": { "type": "string", "pattern": "^[a-z]{2}$" },
+    "lang": { "type": "string", "pattern": "^[a-z]{2}$", "description": "Force a language instead of <html lang>." },
+    "texts": {
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": { "pattern": "^[a-z]{2}$" },
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["message", "accept", "reject", "link", "label"],
+        "properties": {
+          "message": { "type": "string", "minLength": 1, "maxLength": 600 },
+          "accept": { "type": "string", "minLength": 1, "maxLength": 600 },
+          "reject": { "type": "string", "minLength": 1, "maxLength": 600 },
+          "link": { "type": "string", "minLength": 1, "maxLength": 600 },
+          "label": { "type": "string", "minLength": 1, "maxLength": 600 }
+        }
+      }
+    },
+    "links": {
+      "type": "object",
+      "propertyNames": { "pattern": "^[a-z]{2}$" },
+      "additionalProperties": { "type": "string" },
+      "description": "Policy link per language. WordPress fills this itself."
+    },
+    "theme": {
+      "type": "object",
+      "additionalProperties": false,
+      
+      "properties": {
+        "bg": { "$ref": "#/$defs/css" }, "fg": { "$ref": "#/$defs/css" }, "border": { "$ref": "#/$defs/css" },
+        "link": { "$ref": "#/$defs/css" }, "button": { "$ref": "#/$defs/css" }, "buttonText": { "$ref": "#/$defs/css" },
+        "buttonBg": { "$ref": "#/$defs/css" }, "buttonHoverBg": { "$ref": "#/$defs/css" }, "buttonHoverFg": { "$ref": "#/$defs/css" },
+        "radius": { "$ref": "#/$defs/css" }, "buttonRadius": { "$ref": "#/$defs/css" }, "shadow": { "$ref": "#/$defs/css" },
+        "maxWidth": { "$ref": "#/$defs/css" }
+      }
+    },
+    "zIndex": { "type": "integer", "default": 99999 },
+    "respectGpc": { "type": "boolean", "default": true, "description": "Treat the Global Privacy Control signal as Reject when there is no choice yet (no banner, nothing stored). Never read as Accept." },
+    "hideWhileOpen": {
+      "type": "array",
+      "items": { "type": "string", "pattern": "^[#.\\w\\s\\[\\]=\"'*^$|~:>+-]{1,120}$" }
+    },
+    "logEndpoint": { "type": "string", "description": "URL each choice is POSTed to as text/plain JSON: {id, choice, version, lang, site, path}." },
+    "wp": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["policyPage"],
+      "properties": {
+        "policyPage": { "type": ["integer", "string"], "description": "Page ID, slug or URL of the policy." },
+        "block": { "type": "array", "items": { "type": "string", "pattern": "^[A-Za-z0-9._/:-]{2,100}$" }, "description": "Hosts whose scripts wait for Accept." },
+        "legalPages": { "type": "array", "items": { "type": "string", "pattern": "^[A-Za-z0-9._/:-]{2,100}$" } },
+        "allowedOrigins": { "type": "array", "items": { "type": "string", "pattern": "^[A-Za-z0-9._/:-]{2,100}$" }, "description": "Other hosts allowed to log here." },
+        "log": { "type": "boolean", "default": true },
+        "logRetentionDays": { "type": "integer", "minimum": 30, "maximum": 3650, "default": 1095 }
+      }
+    }
+  },
+  "$defs": {
+    "css": { "type": "string", "pattern": "^[#a-zA-Z0-9(),.%\\s-]{1,80}$", "description": "A plain CSS colour or size." }
+  }
+}

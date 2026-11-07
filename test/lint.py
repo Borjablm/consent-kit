@@ -28,8 +28,10 @@ PHPCS = (
 ESLINT = (
     "mkdir /l && cd /l && npm init -y >/dev/null && npm i -s eslint@9 @eslint/js@9 globals@15 >/dev/null 2>&1 && "
     "printf '%s\\n' \"import js from '@eslint/js'; import globals from 'globals';\" "
-    "\"export default [js.configs.recommended, {languageOptions: {ecmaVersion: 2015, sourceType: 'script', globals: globals.browser}}];\" > eslint.config.mjs && "
-    "cp /src/consent-kit.js . && npx eslint --max-warnings 0 consent-kit.js"
+    "\"export default [js.configs.recommended, {languageOptions: {ecmaVersion: 2015, sourceType: 'script', globals: globals.browser}},\" "
+    "\"{files: ['adapters/*.mjs', 'test/*.mjs'], languageOptions: {ecmaVersion: 2022, sourceType: 'module', globals: {...globals.browser, ...globals.node}}}];\" > eslint.config.mjs && "
+    "mkdir adapters test && cp /src/consent-kit.js . && cp /src/adapters/*.mjs adapters/ && cp /src/test/*.mjs test/ && "
+    "npx eslint --max-warnings 0 consent-kit.js adapters test"
 )
 
 CHECKS = [

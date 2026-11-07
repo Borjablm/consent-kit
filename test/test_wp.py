@@ -133,6 +133,11 @@ def tests():
     html = get("/")
     check("configure.py --set: change is live without re-uploading", rc == 0 and '"button":"#7a3b10"' in html and '"accept":"Acepto"' in html, out)
     configure(env, "quecafe", "--set", "texts.es.accept=Aceptar")
+    hist = json.loads(wp("option", "get", "consent_kit_banner_history", "--format=json"))
+    check("banner history: one entry per distinct wording, with version and text",
+          len(hist) == 3 and [h["texts"]["es"]["accept"] for h in hist] == ["Aceptar", "Acepto", "Aceptar"] and all(h["version"] == 1 and h["saved_at"] for h in hist), hist)
+    configure(env, "quecafe", "--push")
+    check("banner history: an unchanged push adds nothing", len(json.loads(wp("option", "get", "consent_kit_banner_history", "--format=json"))) == 3)
     shutil.rmtree(tmp, ignore_errors=True)
 
     html = get("/")
@@ -194,6 +199,7 @@ def tests():
     check("purge: daily event scheduled", "consent_kit_purge" in wp("cron", "event", "list", "--fields=hook", "--format=csv"))
     page = wp("eval", f"wp_set_current_user(1); $_GET['consent_id']='{cid}'; consent_kit_admin_page();")
     check("admin page: lookup finds the visitor's record", cid in page and "granted" in page and "Acceptance rate" in page, page[:300])
+    check("admin page: shows what the banner said per version", "What the banner said, by policy version" in page and "Acepto" in page)
     csv = wp("eval", "wp_set_current_user(1); $_REQUEST['_wpnonce']=wp_create_nonce('consent_kit_export'); do_action('admin_post_consent_kit_export');")
     check("admin: CSV export has header and the record", csv.startswith("created_at_utc,consent_id,choice") and cid in csv, csv[:200])
 

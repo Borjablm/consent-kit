@@ -130,6 +130,23 @@ def run(site, browser):
         check(f"{tag} no JS errors", not errors, errors)
         ctx.close()
 
+        # Global Privacy Control: with no choice yet it counts as Reject (no banner, nothing stored or logged).
+        g = browser.new_context(viewport={"width": width, "height": 800})
+        g.add_init_script("Object.defineProperty(navigator, 'globalPrivacyControl', {get: () => true});")
+        state["html"] = page_html(cfg, lang)
+        g.route(url, lambda r: r.fulfill(status=200, content_type="text/html", body=state["html"]))
+        g.route(f"https://{host}/__held.js", lambda r: r.fulfill(status=200, content_type="application/javascript", body="window.__heldSrc = 1;"))
+        logged = []
+        g.route(f"https://{host}/wp-json/consent-kit/v1/log", lambda r: (logged.append(1), r.fulfill(status=201, body="{}")))
+        gp = g.new_page(); gp.goto(url); gp.wait_for_timeout(600)
+        gd = gp.evaluate("Array.from(dataLayer.find(a => a[0]==='consent' && a[1]==='default'))[2]")
+        check(f"{tag} GPC: no banner, analytics denied, held scripts inert, nothing stored or logged",
+              not gp.is_visible("#consent-kit") and gd["analytics_storage"] == "denied" and not gp.evaluate("window.__heldInline || window.__heldSrc")
+              and name not in {c["name"] for c in g.cookies()} and not logged)
+        gp.click("#reopen"); gp.wait_for_timeout(200); gp.click("#ck-accept"); gp.wait_for_timeout(400)
+        check(f"{tag} GPC: visitor can still open settings and accept", gp.evaluate("ConsentKit.get()") == "granted" and gp.evaluate("window.__heldInline") == 1)
+        g.close()
+
 
 if __name__ == "__main__":
     sites = sys.argv[1:] or sorted(p.stem for p in (ROOT / "sites").glob("*.json"))
