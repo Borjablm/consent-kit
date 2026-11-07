@@ -36,7 +36,15 @@ def main():
     run(sys.executable, "test/test_adapters.py")
     run(sys.executable, "test/test_wp.py")
     zip_path = build()
-    run("gh", "release", "create", f"v{v}", str(zip_path), "--repo", REPO, "--title", f"Consent Kit {v}", "--notes", f"Consent Kit {v}. Sites update themselves from update.json.")
+    # Push the code first and tag that exact commit. (1.1.0 was tagged on the old main because the
+    # release was created before the push, so `npm install ...#v1.1.0` and jsDelivr got 1.0.0 code.)
+    run("git", "push")
+    sha = subprocess.run(["git", "rev-parse", "HEAD"], cwd=HERE, capture_output=True, text=True, check=True).stdout.strip()
+    run("gh", "release", "create", f"v{v}", str(zip_path), "--repo", REPO, "--target", sha, "--title", f"Consent Kit {v}", "--notes", f"Consent Kit {v}. Sites update themselves from update.json.")
+    subprocess.run(["git", "fetch", "-q", "--tags"], cwd=HERE, check=True)
+    tagged = subprocess.run(["git", "rev-list", "-n1", f"v{v}"], cwd=HERE, capture_output=True, text=True, check=True).stdout.strip()
+    if tagged != sha:
+        raise SystemExit(f"v{v} points at {tagged}, expected {sha}. update.json was NOT changed; fix the tag first.")
     shutil.copy(HERE / "dist" / "update.json", HERE / "update.json")
     json.loads((HERE / "update.json").read_text(encoding="utf-8"))
     run("git", "add", "update.json")

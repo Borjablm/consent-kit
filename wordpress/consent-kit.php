@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Consent Kit
  * Description: Accept/Reject cookie banner with Google Consent Mode v2, scripts held until consent, a consent log for proof, and noindex on legal pages. The same plugin runs on every site; each site's settings are stored in the database and set through the admin-only REST route consent-kit/v1/config (configure.py). Updates itself from the release manifest. Replaces Azvai, Lumination and QueCafe Cookie Consent.
- * Version: 1.1.0
+ * Version: 1.1.1
  * Author: Azvai
  * Requires at least: 6.5
  * Requires PHP: 7.4
@@ -12,7 +12,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-const CONSENT_KIT_VERSION    = '1.1.0';
+const CONSENT_KIT_VERSION    = '1.1.1';
 const CONSENT_KIT_DB_VERSION = '1';
 const CONSENT_KIT_OPTION     = 'consent_kit_config';
 if ( ! defined( 'CONSENT_KIT_UPDATE_URL' ) ) {

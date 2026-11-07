@@ -25,7 +25,7 @@ Whatever the framework, a site using Consent Kit does these things.
 Install from a release tag (no npm account needed):
 
 ```bash
-npm install github:Borjablm/consent-kit#v1.1.0
+npm install github:Borjablm/consent-kit#v1.1.1
 ```
 
 Put the script first in `<head>` of the root layout (App Router) or `_document` (Pages Router):
@@ -59,7 +59,7 @@ import { GoogleAnalytics } from "@next/third-parties/google";
 
 ```html
 <script>window.ConsentKitConfig = { /* settings */ };</script>
-<script src="https://cdn.jsdelivr.net/gh/Borjablm/consent-kit@v1.1.0/consent-kit.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/Borjablm/consent-kit@v1.1.1/consent-kit.js"></script>
 ```
 
 Put both in `<head>`, before any tracker, and pin the version.

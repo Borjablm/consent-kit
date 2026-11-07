@@ -71,7 +71,7 @@ python theme.py https://example.com/ --preview test/shots/example.png
 This reads the colours the page renders (background, text, links, buttons and their rounding) and picks the most used brand colour. It checks contrast (4.5:1 for text, 3:1 for outlines) and falls back to the body text colour when a colour is too faint. With `--preview`, it draws the banner over the live page in a headless browser for desktop and phone. Nothing on the site changes. `--site <name>` writes the theme into that site's settings file.
 
 ## Sites without WordPress
-Next.js and React sites install `github:Borjablm/consent-kit#v1.1.0` and use `<ConsentKitScript>`, `<ConsentGate>` and `useConsent()`. Plain HTML sites load `consent-kit.js` from jsDelivr, pinned to a release. [docs/INTEGRATION.md](docs/INTEGRATION.md) has both, the contract every integration follows, and how to log choices.
+Next.js and React sites install `github:Borjablm/consent-kit#v1.1.1` and use `<ConsentKitScript>`, `<ConsentGate>` and `useConsent()`. Plain HTML sites load `consent-kit.js` from jsDelivr, pinned to a release. [docs/INTEGRATION.md](docs/INTEGRATION.md) has both, the contract every integration follows, and how to log choices.
 
 ## Tests and releases
 - `python test/lint.py` (Docker) runs gitleaks, PHP 7.4+ compatibility, the WordPress-Extra coding standards and ESLint, with zero findings allowed. Every `phpcs:ignore` must name its rule and give a reason.
