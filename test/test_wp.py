@@ -24,6 +24,12 @@ import zipfile
 from pathlib import Path
 from playwright.sync_api import sync_playwright
 
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from build import version as built_version  # noqa: E402
+
+CURRENT = built_version()
+NEXT = ".".join(CURRENT.split(".")[:-1] + [str(int(CURRENT.split(".")[-1]) + 1)])
+
 ROOT = Path(__file__).resolve().parent.parent
 WP = Path(__file__).parent / "wp"
 BASE = "http://localhost:8089"
@@ -72,8 +78,8 @@ def configure(env, *args):
 
 def make_release(version, folder):
     """A copy of the plugin with its version raised, zipped, plus update.json, as release.py would publish."""
-    php = (ROOT / "wordpress" / "consent-kit.php").read_text(encoding="utf-8").replace("1.0.0", version)
-    js = (ROOT / "consent-kit.js").read_text(encoding="utf-8").replace("Consent Kit 1.0.0.", f"Consent Kit {version}.")
+    php = (ROOT / "wordpress" / "consent-kit.php").read_text(encoding="utf-8").replace(CURRENT, version)
+    js = (ROOT / "consent-kit.js").read_text(encoding="utf-8").replace(f"Consent Kit {CURRENT}.", f"Consent Kit {version}.")
     with zipfile.ZipFile(folder / f"consent-kit-{version}.zip", "w") as z:
         z.writestr("consent-kit/consent-kit.php", php)
         z.writestr("consent-kit/consent-kit.js", js)
@@ -99,7 +105,7 @@ def setup():
             wp("post", "create", "--post_type=page", "--post_status=publish", f"--post_title={title}", f"--post_name={slug}")
         wp("user", "create", "ckeditor", "editor@example.test", "--role=editor", f"--user_pass=ck-{time.time_ns()}")
     wp("plugin", "deactivate", "azvai-consent", check_rc=False)
-    wp("plugin", "install", "/dist/consent-kit-1.0.0.zip", "--force", "--activate")
+    wp("plugin", "install", f"/dist/consent-kit-{CURRENT}.zip", "--force", "--activate")
 
 
 def tests():
@@ -210,18 +216,18 @@ def tests():
     wp("plugin", "deactivate", "azvai-consent")
     check("guard: kit back once the old plugin is off", 'id="consent-kit-js"' in get("/"))
 
-    # Self-update: publish 1.0.1 on the stand-in release server, WordPress sees it, installs it, settings survive.
-    make_release("1.0.1", WP / "releases")
+    # Self-update: publish the next patch version on the stand-in release server, WordPress sees it, installs it, settings survive.
+    make_release(NEXT, WP / "releases")
     wp("transient", "delete", "--all", "--network", check_rc=False)
     listed = wp("plugin", "list", "--name=consent-kit", "--fields=name,version,update,update_version", "--format=json")
     info = json.loads(listed)[0]
-    check("update: WordPress sees 1.0.1 from the manifest", info["update"] == "available" and info["update_version"] == "1.0.1", info)
+    check(f"update: WordPress sees {NEXT} from the manifest", info["update"] == "available" and info["update_version"] == NEXT, info)
     check("update: auto-update on for this plugin", wp("eval", "var_export(apply_filters('auto_update_plugin', false, (object) array('plugin' => 'consent-kit/consent-kit.php')));") == "true")
     up = wp("plugin", "update", "consent-kit", check_rc=False)
     ver = wp("plugin", "get", "consent-kit", "--field=version")
-    check("update: installed 1.0.1", ver == "1.0.1", up[-300:])
+    check(f"update: installed {NEXT}", ver == NEXT, up[-300:])
     html3 = get("/")
-    check("update: site settings kept and banner still served", '"cookie":"qc_consent"' in html3 and "Consent Kit 1.0.1." in html3)
+    check("update: site settings kept and banner still served", '"cookie":"qc_consent"' in html3 and f"Consent Kit {NEXT}." in html3)
     check("update: plugin still active", subprocess.run(["docker", "compose", "run", "--rm", "-T", "cli", "wp", "plugin", "is-active", "consent-kit"], cwd=WP, capture_output=True).returncode == 0)
     shutil.rmtree(WP / "releases", ignore_errors=True)
 

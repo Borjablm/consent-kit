@@ -3,8 +3,12 @@
   "cookie": "ck_consent",
   "version": 1,
   "maxAgeDays": 180,
-  "grant": ["analytics_storage"],
-  "clearCookies": ["_ga"],
+  "grant": [
+    "analytics_storage"
+  ],
+  "clearCookies": [
+    "_ga"
+  ],
   "defaultLang": "en",
   "texts": {
     "en": {
@@ -17,6 +21,7 @@
   },
   "theme": {},
   "zIndex": 99999,
+  "respectGpc": true,
   "wp": {
     "policyPage": "privacy-policy",
     "log": true,

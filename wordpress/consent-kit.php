@@ -583,6 +583,7 @@ function consent_kit_record_banner( $cfg ) {
 		'grant'   => $cfg['grant'],
 		'policy'  => $cfg['wp']['policyPage'],
 	);
+
 	$last = end( $history );
 	if ( $last ) {
 		unset( $last['saved_at'] );

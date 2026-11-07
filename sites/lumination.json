@@ -3,8 +3,12 @@
   "cookie": "lai_consent",
   "version": 1,
   "maxAgeDays": 180,
-  "grant": ["analytics_storage"],
-  "clearCookies": ["_ga"],
+  "grant": [
+    "analytics_storage"
+  ],
+  "clearCookies": [
+    "_ga"
+  ],
   "defaultLang": "en",
   "texts": {
     "en": {
@@ -28,6 +32,7 @@
     "shadow": "0 8px 24px rgba(27,29,30,.12)"
   },
   "zIndex": 99999,
+  "respectGpc": true,
   "wp": {
     "policyPage": 2190,
     "log": true,

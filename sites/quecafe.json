@@ -3,8 +3,13 @@
   "cookie": "qc_consent",
   "version": 1,
   "maxAgeDays": 180,
-  "grant": ["analytics_storage"],
-  "clearCookies": ["_ga", "_wctrck"],
+  "grant": [
+    "analytics_storage"
+  ],
+  "clearCookies": [
+    "_ga",
+    "_wctrck"
+  ],
   "defaultLang": "es",
   "texts": {
     "es": {
@@ -26,11 +31,21 @@
     "maxWidth": "760px"
   },
   "zIndex": 100000,
-  "hideWhileOpen": ["#qc-ads-bar", "#qc-ads-box"],
+  "hideWhileOpen": [
+    "#qc-ads-bar",
+    "#qc-ads-box"
+  ],
+  "respectGpc": true,
   "wp": {
     "policyPage": "politica-de-cookies",
-    "block": ["wct-3.com"],
-    "legalPages": ["aviso-legal", "politica-de-privacidad", "politica-de-cookies"],
+    "block": [
+      "wct-3.com"
+    ],
+    "legalPages": [
+      "aviso-legal",
+      "politica-de-privacidad",
+      "politica-de-cookies"
+    ],
     "log": true,
     "logRetentionDays": 1095
   }
