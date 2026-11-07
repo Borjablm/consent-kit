@@ -1,6 +1,6 @@
 {
-  "version": "1.1.0",
-  "package": "https://github.com/Borjablm/consent-kit/releases/download/v1.1.0/consent-kit-1.1.0.zip",
+  "version": "1.1.1",
+  "package": "https://github.com/Borjablm/consent-kit/releases/download/v1.1.1/consent-kit-1.1.1.zip",
   "url": "https://github.com/Borjablm/consent-kit",
   "requires": "6.5",
   "requires_php": "7.4",
