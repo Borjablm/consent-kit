@@ -1,0 +1,39 @@
+{
+  "site": "azvai.com",
+  "cookie": "azv_consent",
+  "version": 1,
+  "maxAgeDays": 180,
+  "grant": ["analytics_storage"],
+  "clearCookies": ["_ga"],
+  "defaultLang": "en",
+  "texts": {
+    "en": {
+      "message": "We use Google Analytics cookies to see how the site is used. They are only set if you accept.",
+      "accept": "Accept",
+      "reject": "Reject",
+      "link": "Privacy policy",
+      "label": "Cookie consent"
+    },
+    "es": {
+      "message": "Usamos cookies de Google Analytics para ver cómo se usa el sitio. Solo se activan si las aceptas.",
+      "accept": "Aceptar",
+      "reject": "Rechazar",
+      "link": "Política de privacidad",
+      "label": "Consentimiento de cookies"
+    }
+  },
+  "theme": {
+    "bg": "#F1FFD2",
+    "fg": "#3B3B3B",
+    "border": "#3B3B3B",
+    "radius": "8px",
+    "buttonRadius": "6px",
+    "shadow": "0 4px 16px rgba(0,0,0,.15)"
+  },
+  "zIndex": 99999,
+  "wp": {
+    "policyPage": 2181,
+    "log": true,
+    "logRetentionDays": 1095
+  }
+}

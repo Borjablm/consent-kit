@@ -1,0 +1,36 @@
+{
+  "site": "lumination.ai",
+  "cookie": "lai_consent",
+  "version": 1,
+  "maxAgeDays": 180,
+  "grant": ["analytics_storage"],
+  "clearCookies": ["_ga"],
+  "defaultLang": "en",
+  "texts": {
+    "en": {
+      "message": "We use Google Analytics cookies to see how the site is used. They are only set if you accept.",
+      "accept": "Accept",
+      "reject": "Reject",
+      "link": "Privacy policy",
+      "label": "Cookie consent"
+    }
+  },
+  "theme": {
+    "bg": "#fff",
+    "fg": "#1b1d1e",
+    "border": "#1c1e1f21",
+    "link": "#4928fd",
+    "button": "#4928fd",
+    "buttonHoverBg": "#4928fd",
+    "buttonHoverFg": "#fff",
+    "radius": "15px",
+    "buttonRadius": "100px",
+    "shadow": "0 8px 24px rgba(27,29,30,.12)"
+  },
+  "zIndex": 99999,
+  "wp": {
+    "policyPage": 2190,
+    "log": true,
+    "logRetentionDays": 1095
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "site": "example.com",
+  "cookie": "ck_consent",
+  "version": 1,
+  "maxAgeDays": 180,
+  "grant": ["analytics_storage"],
+  "clearCookies": ["_ga"],
+  "defaultLang": "en",
+  "texts": {
+    "en": {
+      "message": "We use Google Analytics cookies to see how the site is used. They are only set if you accept.",
+      "accept": "Accept",
+      "reject": "Reject",
+      "link": "Privacy policy",
+      "label": "Cookie consent"
+    }
+  },
+  "theme": {},
+  "zIndex": 99999,
+  "wp": {
+    "policyPage": "privacy-policy",
+    "log": true,
+    "logRetentionDays": 1095
+  }
+}

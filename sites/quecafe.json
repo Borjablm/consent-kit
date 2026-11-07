@@ -1,0 +1,37 @@
+{
+  "site": "quecafe.info",
+  "cookie": "qc_consent",
+  "version": 1,
+  "maxAgeDays": 180,
+  "grant": ["analytics_storage"],
+  "clearCookies": ["_ga", "_wctrck"],
+  "defaultLang": "es",
+  "texts": {
+    "es": {
+      "message": "Usamos cookies de Google Analytics para medir las visitas y de WeCanTrack para saber qué enlaces de afiliado se usan. Solo se activan si las aceptas.",
+      "accept": "Aceptar",
+      "reject": "Rechazar",
+      "link": "Política de cookies",
+      "label": "Consentimiento de cookies"
+    }
+  },
+  "theme": {
+    "bg": "#faf6f1",
+    "fg": "#2b1b12",
+    "border": "#2b1b12",
+    "buttonHoverBg": "#f1e7da",
+    "radius": "10px",
+    "buttonRadius": "6px",
+    "shadow": "0 4px 18px rgba(0,0,0,.18)",
+    "maxWidth": "760px"
+  },
+  "zIndex": 100000,
+  "hideWhileOpen": ["#qc-ads-bar", "#qc-ads-box"],
+  "wp": {
+    "policyPage": "politica-de-cookies",
+    "block": ["wct-3.com"],
+    "legalPages": ["aviso-legal", "politica-de-privacidad", "politica-de-cookies"],
+    "log": true,
+    "logRetentionDays": 1095
+  }
+}
