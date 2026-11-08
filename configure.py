@@ -94,7 +94,11 @@ def set_path(cfg, path, raw):
     try:
         value = json.loads(raw)  # numbers, true/false, lists
     except json.JSONDecodeError:
-        value = raw
+        if raw.startswith("[") and raw.endswith("]"):
+            # A list whose quotes the shell stripped (bws run on Windows does): [a.com, b.com]
+            value = [item.strip().strip("\"'") for item in raw[1:-1].split(",") if item.strip()]
+        else:
+            value = raw
     node[keys[-1]] = value
 
 
@@ -107,7 +111,7 @@ def main():
 
     if "--pull" in args:
         live = call(name, "GET")["config"]
-        path.write_text(json.dumps(live, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        path.write_text(json.dumps(live, ensure_ascii=False, indent=2) + "\n", encoding="utf-8", newline="\n")
         print(f"wrote live settings into {path}")
         return
 
@@ -137,7 +141,7 @@ def main():
             set_path(local, k, v)
             changed = True
     if changed:
-        path.write_text(json.dumps(local, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        path.write_text(json.dumps(local, ensure_ascii=False, indent=2) + "\n", encoding="utf-8", newline="\n")
         print(f"updated {path}")
 
     if changed or "--push" in args:

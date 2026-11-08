@@ -36,6 +36,9 @@
   "wp": {
     "policyPage": 2190,
     "log": true,
-    "logRetentionDays": 1095
+    "logRetentionDays": 1095,
+    "allowedOrigins": [
+      "ai-tutor.ai"
+    ]
   }
 }
