@@ -6,7 +6,8 @@
 
 It runs both test suites and stops on any failure, builds the zip, creates the GitHub release
 v<version> with the zip attached, and only then commits update.json. Sites check that file and
-auto-update within about 12 hours. A bad release reaches every site, hence the test gate.
+show the update in wp-admin within about 12 hours; an admin installs it on each site (from 1.1.2
+on, nothing installs automatically).
 To roll back, release the previous code under a higher version number.
 """
 import json
@@ -40,7 +41,7 @@ def main():
     # release was created before the push, so `npm install ...#v1.1.0` and jsDelivr got 1.0.0 code.)
     run("git", "push")
     sha = subprocess.run(["git", "rev-parse", "HEAD"], cwd=HERE, capture_output=True, text=True, check=True).stdout.strip()
-    run("gh", "release", "create", f"v{v}", str(zip_path), "--repo", REPO, "--target", sha, "--title", f"Consent Kit {v}", "--notes", f"Consent Kit {v}. Sites update themselves from update.json.")
+    run("gh", "release", "create", f"v{v}", str(zip_path), "--repo", REPO, "--target", sha, "--title", f"Consent Kit {v}", "--notes", f"Consent Kit {v}. Install it from Plugins in wp-admin on each site.")
     subprocess.run(["git", "fetch", "-q", "--tags"], cwd=HERE, check=True)
     tagged = subprocess.run(["git", "rev-list", "-n1", f"v{v}"], cwd=HERE, capture_output=True, text=True, check=True).stdout.strip()
     if tagged != sha:

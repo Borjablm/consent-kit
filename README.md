@@ -23,7 +23,7 @@ A cookie banner for any website. It asks visitors before any tracking starts, ho
 | **Settings live in** | The site's database, changed with `configure.py` | A settings file in your code | The page |
 | **Trackers wait by** | Listing their hosts in `wp.block` (automatic) | Wrapping them in `<ConsentGate>` | Marking them `type="text/plain"` |
 | **Consent log** | Built in (Tools > Consent log) | Sent to a log endpoint | Sent to a log endpoint |
-| **Updates** | Automatic, from this repo's releases | Change the version in `package.json` | Change the version in the script URL |
+| **Updates** | Shown in wp-admin, installed with one click | Change the version in `package.json` | Change the version in the script URL |
 
 ## WordPress
 
@@ -53,13 +53,13 @@ python configure.py <name> --pull                        # copy the live setting
 - **Log endpoint for other sites.** Sites without WordPress can send their choices to this site's log once their host is listed in `wp.allowedOrigins`.
 - **Legal pages.** Pages listed in `wp.legalPages` get `noindex, follow` and are left out of the Yoast sitemap.
 - **Safe by default.** With no settings the plugin prints nothing. While an older per-site banner plugin is active it stays silent and shows an admin notice, so visitors never see two banners.
-- **Automatic updates.** The plugin reads `update.json` from this repository and updates itself within about 12 hours of a release. No wordpress.org plugin can overwrite it.
+- **Reviewed updates.** The plugin reads `update.json` from this repository and shows a new release as an update in wp-admin within about 12 hours. An admin installs it with Update, so nothing reaches a live site without a person checking it. It never installs itself, even with auto-updates switched on for all plugins, and it only accepts a zip attached to one of this repository's GitHub releases. No wordpress.org plugin can overwrite it.
 
 ## Next.js and React
 
 ### Install
 ```bash
-npm install https://codeload.github.com/Borjablm/consent-kit/tar.gz/refs/tags/v1.1.1
+npm install https://codeload.github.com/Borjablm/consent-kit/tar.gz/refs/tags/v1.1.2
 ```
 Use the release tarball URL. npm saves a `github:` address as `git+ssh` in the lockfile, which fails in CI and Docker builds that have no SSH key.
 
@@ -120,7 +120,7 @@ A link to `#cookie-settings` reopens the banner, or call `openConsentSettings()`
 Put both tags first in `<head>`, before any tracker, with the version pinned:
 ```html
 <script>window.ConsentKitConfig = { /* settings, see below */ };</script>
-<script src="https://cdn.jsdelivr.net/gh/Borjablm/consent-kit@v1.1.1/consent-kit.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/Borjablm/consent-kit@v1.1.2/consent-kit.js"></script>
 ```
 
 ### Make trackers wait
@@ -194,9 +194,9 @@ Sites that show Google AdSense or Ad Manager ads in the EEA or UK need a Google-
 | `docs/` | `INTEGRATION.md` (the technical contract) and `REGULATIONS.md` (the rules). |
 | `build.py`, `release.py`, `test/` | Build, release and tests. |
 
-**Tests.** `python test/lint.py` runs gitleaks, PHP 7.4+ compatibility, the WordPress-Extra coding standards and ESLint, with zero findings allowed. `python test/test_js.py` runs the banner in Chrome with every settings file. `python test/test_adapters.py` (after `npm install`) checks the React adapters with React 18. `python test/test_wp.py` runs the plugin in a throwaway WordPress, including a self-update. The lint and WordPress tests need Docker.
+**Tests.** `python test/lint.py` runs gitleaks, PHP 7.4+ compatibility, the WordPress-Extra coding standards and ESLint, with zero findings allowed. `python test/test_js.py` runs the banner in Chrome with every settings file. `python test/test_adapters.py` (after `npm install`) checks the React adapters with React 18. `python test/test_wp.py` runs the plugin in a throwaway WordPress, including an update. The lint and WordPress tests need Docker.
 
-**Releases.** Raise the version in the plugin header, in `CONSENT_KIT_VERSION`, in `package.json` and on the first line of `consent-kit.js`. Then run `python build.py`, commit, and run `python release.py`. It runs every test and stops on any failure, pushes, tags that exact commit, and only then updates `update.json`, which WordPress sites read. To roll back, release the earlier code under a higher version number.
+**Releases.** Raise the version in the plugin header, in `CONSENT_KIT_VERSION`, in `package.json` and on the first line of `consent-kit.js`. Then run `python build.py`, commit, and run `python release.py`. It runs every test and stops on any failure, pushes, tags that exact commit, and only then updates `update.json`, which WordPress sites read. Then install the update on each site from Plugins in wp-admin. To roll back, release the earlier code under a higher version number.
 
 ## Licence
 

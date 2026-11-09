@@ -9,6 +9,7 @@ x-wp-env: &wpenv
   WORDPRESS_CONFIG_EXTRA: |
     define( 'WP_ENVIRONMENT_TYPE', 'local' );
     define( 'CONSENT_KIT_UPDATE_URL', 'http://releases/update.json' );
+    define( 'CONSENT_KIT_PACKAGE_PREFIX', 'http://releases/' );
 services:
   # Stands in for GitHub releases in the self-update test.
   releases:

@@ -1,8 +1,8 @@
 <?php
 /**
  * Plugin Name: Consent Kit
- * Description: Accept/Reject cookie banner with Google Consent Mode v2, scripts held until consent, a consent log for proof, and noindex on legal pages. The same plugin runs on every site; each site's settings are stored in the database and set through the admin-only REST route consent-kit/v1/config (configure.py). Updates itself from the release manifest. Replaces Azvai, Lumination and QueCafe Cookie Consent.
- * Version: 1.1.1
+ * Description: Accept/Reject cookie banner with Google Consent Mode v2, scripts held until consent, a consent log for proof, and noindex on legal pages. The same plugin runs on every site; each site's settings are stored in the database and set through the admin-only REST route consent-kit/v1/config (configure.py). New releases show as updates in wp-admin and are installed by an admin, never automatically. Replaces Azvai, Lumination and QueCafe Cookie Consent.
+ * Version: 1.1.2
  * Author: Azvai
  * Requires at least: 6.5
  * Requires PHP: 7.4
@@ -12,11 +12,15 @@
 
 defined( 'ABSPATH' ) || exit;
 
-const CONSENT_KIT_VERSION    = '1.1.1';
+const CONSENT_KIT_VERSION    = '1.1.2';
 const CONSENT_KIT_DB_VERSION = '1';
 const CONSENT_KIT_OPTION     = 'consent_kit_config';
 if ( ! defined( 'CONSENT_KIT_UPDATE_URL' ) ) {
 	define( 'CONSENT_KIT_UPDATE_URL', 'https://raw.githubusercontent.com/Borjablm/consent-kit/main/update.json' );
+}
+// An update is offered only if its zip is a release asset of this repository.
+if ( ! defined( 'CONSENT_KIT_PACKAGE_PREFIX' ) ) {
+	define( 'CONSENT_KIT_PACKAGE_PREFIX', 'https://github.com/Borjablm/consent-kit/releases/download/' );
 }
 
 /**
@@ -632,7 +636,7 @@ function consent_kit_manifest() {
 	if ( false === $m ) {
 		$r = wp_remote_get( CONSENT_KIT_UPDATE_URL, array( 'timeout' => 10 ) );
 		$m = ( ! is_wp_error( $r ) && 200 === wp_remote_retrieve_response_code( $r ) ) ? json_decode( wp_remote_retrieve_body( $r ), true ) : null;
-		$m = ( is_array( $m ) && ! empty( $m['version'] ) && ! empty( $m['package'] ) ) ? $m : array();
+		$m = ( is_array( $m ) && ! empty( $m['version'] ) && is_string( $m['package'] ?? null ) && 0 === strpos( $m['package'], CONSENT_KIT_PACKAGE_PREFIX ) ) ? $m : array();
 		set_site_transient( 'consent_kit_manifest', $m, $m ? 6 * HOUR_IN_SECONDS : HOUR_IN_SECONDS );
 	}
 	return $m;
@@ -663,21 +667,22 @@ add_filter(
 	3
 );
 
-// Releases go live on every site without a click.
+// Never install automatically, even if auto-updates are switched on for all plugins: an admin
+// reviews each release and clicks Update, so a bad or malicious release can't reach a site alone.
 add_filter(
 	'auto_update_plugin',
 	function ( $update, $item ) {
-		return ( isset( $item->plugin ) && plugin_basename( __FILE__ ) === $item->plugin ) ? true : $update;
+		return ( isset( $item->plugin ) && plugin_basename( __FILE__ ) === $item->plugin ) ? false : $update;
 	},
-	10,
+	20,
 	2
 );
 
-// The plugin row shows that this plugin updates itself.
+// The plugin row says why there is no auto-update toggle.
 add_filter(
 	'plugin_auto_update_setting_html',
 	function ( $html, $plugin_file ) {
-		return plugin_basename( __FILE__ ) === $plugin_file ? 'Updates itself from github.com/Borjablm/consent-kit' : $html;
+		return plugin_basename( __FILE__ ) === $plugin_file ? 'Updates are installed by hand, after review' : $html;
 	},
 	10,
 	2

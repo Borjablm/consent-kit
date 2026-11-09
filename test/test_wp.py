@@ -6,7 +6,7 @@
 Covers: install of the generic zip (silent until configured), settings pushed through the config
 API with configure.py (the same script used on live sites), validation and permissions of that API,
 the PHP output and output buffer, the REST consent log (validation, origin check, rate limit), purge,
-the admin page, CSV export, noindex, the guard against old per-site plugins, and a self-update from
+the admin page, CSV export, noindex, the guard against old per-site plugins, and a manual update from
 a release manifest that keeps the site's settings.
 """
 import base64
@@ -216,13 +216,19 @@ def tests():
     wp("plugin", "deactivate", "azvai-consent")
     check("guard: kit back once the old plugin is off", 'id="consent-kit-js"' in get("/"))
 
-    # Self-update: publish the next patch version on the stand-in release server, WordPress sees it, installs it, settings survive.
+    # Updates: a manifest whose zip is not a release asset is ignored; a real release shows as an update,
+    # is never auto-installed, and an admin's update keeps the settings.
+    make_release(NEXT, WP / "releases")
+    (WP / "releases" / "update.json").write_text(json.dumps({"version": "9.9.9", "package": "https://example.com/consent-kit-9.9.9.zip"}))
+    wp("transient", "delete", "--all", "--network", check_rc=False)
+    info = json.loads(wp("plugin", "list", "--name=consent-kit", "--fields=name,version,update,update_version", "--format=json"))[0]
+    check("update: zip from outside the release URL is ignored", info["update"] == "none", info)
     make_release(NEXT, WP / "releases")
     wp("transient", "delete", "--all", "--network", check_rc=False)
     listed = wp("plugin", "list", "--name=consent-kit", "--fields=name,version,update,update_version", "--format=json")
     info = json.loads(listed)[0]
     check(f"update: WordPress sees {NEXT} from the manifest", info["update"] == "available" and info["update_version"] == NEXT, info)
-    check("update: auto-update on for this plugin", wp("eval", "var_export(apply_filters('auto_update_plugin', false, (object) array('plugin' => 'consent-kit/consent-kit.php')));") == "true")
+    check("update: never auto-installed, even with auto-updates forced on", wp("eval", "var_export(apply_filters('auto_update_plugin', true, (object) array('plugin' => 'consent-kit/consent-kit.php')));") == "false")
     up = wp("plugin", "update", "consent-kit", check_rc=False)
     ver = wp("plugin", "get", "consent-kit", "--field=version")
     check(f"update: installed {NEXT}", ver == NEXT, up[-300:])

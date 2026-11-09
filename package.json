@@ -1,6 +1,6 @@
 {
   "name": "@borjablm/consent-kit",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "Accept/Reject cookie banner with Google Consent Mode v2, scripts held until consent and a consent log. Core script, React helpers and a WordPress plugin.",
   "license": "GPL-2.0-or-later",
   "repository": {
