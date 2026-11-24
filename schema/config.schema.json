@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/Borjablm/consent-kit/blob/main/schema/config.schema.json",
+  "$id": "https://github.com/lum-earth/consent-kit/blob/main/schema/config.schema.json",
   "title": "Consent Kit settings",
   "description": "Settings for one site. WordPress sites keep them in the database (configure.py); other sites pass them to ConsentKitScript or window.ConsentKitConfig. The wp block is read only by the WordPress plugin.",
   "type": "object",

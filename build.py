@@ -13,7 +13,7 @@ from pathlib import Path
 
 HERE = Path(__file__).parent
 DIST = HERE / "dist"
-REPO = "Borjablm/consent-kit"
+REPO = "lum-earth/consent-kit"
 SIGNALS = {"ad_storage", "ad_user_data", "ad_personalization", "analytics_storage"}
 TEXT_KEYS = {"message", "accept", "reject", "link", "label"}
 

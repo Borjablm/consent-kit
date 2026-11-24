@@ -28,7 +28,7 @@ A cookie banner for any website. It asks visitors before any tracking starts, ho
 ## WordPress
 
 ### Install
-1. Download `consent-kit-<version>.zip` from the [latest release](https://github.com/Borjablm/consent-kit/releases/latest) and upload it in Plugins > Add New > Upload. Activate it. It shows nothing until it has settings.
+1. Download `consent-kit-<version>.zip` from the [latest release](https://github.com/lum-earth/consent-kit/releases/latest) and upload it in Plugins > Add New > Upload. Activate it. It shows nothing until it has settings.
 2. Copy `sites/_template.json` to `sites/<name>.json` and fill it in (see [Settings](#settings)). `python theme.py https://<site>/ --site <name>` fills in the colours from the live site.
 3. Push the settings with `python configure.py <name> --push`.
 4. Add a "Cookie settings" link to `#cookie-settings` in the footer.
@@ -59,7 +59,7 @@ python configure.py <name> --pull                        # copy the live setting
 
 ### Install
 ```bash
-npm install https://codeload.github.com/Borjablm/consent-kit/tar.gz/refs/tags/v1.1.2
+npm install https://codeload.github.com/lum-earth/consent-kit/tar.gz/refs/tags/v1.1.2
 ```
 Use the release tarball URL. npm saves a `github:` address as `git+ssh` in the lockfile, which fails in CI and Docker builds that have no SSH key.
 
@@ -120,7 +120,7 @@ A link to `#cookie-settings` reopens the banner, or call `openConsentSettings()`
 Put both tags first in `<head>`, before any tracker, with the version pinned:
 ```html
 <script>window.ConsentKitConfig = { /* settings, see below */ };</script>
-<script src="https://cdn.jsdelivr.net/gh/Borjablm/consent-kit@v1.1.2/consent-kit.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/lum-earth/consent-kit@v1.1.2/consent-kit.js"></script>
 ```
 
 ### Make trackers wait
