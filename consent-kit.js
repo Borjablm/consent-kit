@@ -1,8 +1,8 @@
 /*!
- * Consent Kit 1.1.2. Accept/Reject cookie banner with Google Consent Mode v2.
+ * Consent Kit 1.1.3. Accept/Reject cookie banner with Google Consent Mode v2.
  * One file for every site. Load it synchronously in <head>, before any Google tag,
  * after setting window.ConsentKitConfig. The WordPress plugin inlines this file.
- * https://github.com/Borjablm/consent-kit (GPL-2.0-or-later)
+ * https://github.com/lum-earth/consent-kit (GPL-2.0-or-later)
  */
 (function (w, d) {
 	'use strict';

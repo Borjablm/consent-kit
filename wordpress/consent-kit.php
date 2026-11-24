@@ -2,25 +2,25 @@
 /**
  * Plugin Name: Consent Kit
  * Description: Accept/Reject cookie banner with Google Consent Mode v2, scripts held until consent, a consent log for proof, and noindex on legal pages. The same plugin runs on every site; each site's settings are stored in the database and set through the admin-only REST route consent-kit/v1/config (configure.py). New releases show as updates in wp-admin and are installed by an admin, never automatically. Replaces Azvai, Lumination and QueCafe Cookie Consent.
- * Version: 1.1.2
+ * Version: 1.1.3
  * Author: Azvai
  * Requires at least: 6.5
  * Requires PHP: 7.4
  * License: GPL-2.0-or-later
- * Update URI: https://github.com/Borjablm/consent-kit
+ * Update URI: https://github.com/lum-earth/consent-kit
  */
 
 defined( 'ABSPATH' ) || exit;
 
-const CONSENT_KIT_VERSION    = '1.1.2';
+const CONSENT_KIT_VERSION    = '1.1.3';
 const CONSENT_KIT_DB_VERSION = '1';
 const CONSENT_KIT_OPTION     = 'consent_kit_config';
 if ( ! defined( 'CONSENT_KIT_UPDATE_URL' ) ) {
-	define( 'CONSENT_KIT_UPDATE_URL', 'https://raw.githubusercontent.com/Borjablm/consent-kit/main/update.json' );
+	define( 'CONSENT_KIT_UPDATE_URL', 'https://raw.githubusercontent.com/lum-earth/consent-kit/main/update.json' );
 }
 // An update is offered only if its zip is a release asset of this repository.
 if ( ! defined( 'CONSENT_KIT_PACKAGE_PREFIX' ) ) {
-	define( 'CONSENT_KIT_PACKAGE_PREFIX', 'https://github.com/Borjablm/consent-kit/releases/download/' );
+	define( 'CONSENT_KIT_PACKAGE_PREFIX', 'https://github.com/lum-earth/consent-kit/releases/download/' );
 }
 
 /**
@@ -656,7 +656,7 @@ add_filter(
 		return array(
 			'slug'         => 'consent-kit',
 			'version'      => $m['version'],
-			'url'          => $m['url'] ?? 'https://github.com/Borjablm/consent-kit',
+			'url'          => $m['url'] ?? 'https://github.com/lum-earth/consent-kit',
 			'package'      => $m['package'],
 			'requires'     => $m['requires'] ?? '6.5',
 			'requires_php' => $m['requires_php'] ?? '7.4',
